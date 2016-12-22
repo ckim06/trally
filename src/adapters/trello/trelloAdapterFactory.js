@@ -51,7 +51,7 @@ module.exports = function(options) {
 
   var exports = {
 
-    addCardToList: function(cardName, listId) {
+    addCardToList: function(ticket, listId) {
 
       function url(listId) {
         return BASE_URL + 'lists/' + listId + '/cards';
@@ -60,7 +60,8 @@ module.exports = function(options) {
       var deferred = Q.defer();
 
       var queryParams = {
-        name: cardName,
+        // em dash
+        name: ticket.id + ' — ' + ticket.name,
         key: authParams.key,
         token: authParams.token
       };

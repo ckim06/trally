@@ -41,6 +41,7 @@ module.exports = function(options) {
     };
 
     var handleResponse = function(err, res) {
+      console.log('res', res);
 
       if (err) {
         deferred.reject(new Error(err));
@@ -52,8 +53,38 @@ module.exports = function(options) {
         var iterationId = _(res.Results).first().ObjectID;
         deferred.resolve(iterationId);
       }
+    //  deferred.resolve(60727996718);
+
     };
 
+    restApi.query(query, handleResponse);
+
+    return deferred.promise;
+  }
+  function getInterationDefects(iterationId) {
+    var deferred = Q.defer();
+
+    var query = {
+      type:'defect',
+      fetch: ['FormattedID','ObjectID', 'Name', 'Iteration', 'Owner', 'ScheduleState', 'Description'],
+      query: queryUtils.where('Iteration.ObjectId', '=', iterationId),
+      start: 1,
+      limit: TICKETS_LIMIT
+    };
+
+    var handleResponse = function(err, res) {
+      function tickets() {
+        return _(res.Results).map(ticketMapper.map).value();
+      }
+
+      if (err) {
+        deferred.reject(new Error(err));
+
+      } else {
+        deferred.resolve(tickets());
+
+      }
+    };
     restApi.query(query, handleResponse);
 
     return deferred.promise;
@@ -64,7 +95,7 @@ module.exports = function(options) {
     var deferred = Q.defer();
 
     var query = {
-      type: 'hierarchicalrequirement',
+      type:'[hierarchicalrequirement]',
       fetch: ['FormattedID','ObjectID', 'Name', 'Iteration', 'Owner', 'ScheduleState', 'Description'],
       query: queryUtils.where('Iteration.ObjectId', '=', iterationId),
       start: 1,
@@ -72,6 +103,7 @@ module.exports = function(options) {
     };
 
     var handleResponse = function(err, res) {
+      console.log(res);
 
       function tickets() {
         return _(res.Results).map(ticketMapper.map).value();
@@ -91,9 +123,24 @@ module.exports = function(options) {
   }
 
   return {
-
     fetchCurrentSprintTickets: function(rallyProjectId) {
-      return fetchCurrentIterationId(rallyProjectId).then(getIterationTickets);
+      var deferred = Q.defer();
+      var itId;
+     fetchCurrentIterationId(rallyProjectId).then(function(interationId) {
+       itId = interationId;
+       getIterationTickets(interationId).then(function(data) {
+           tickets = data;
+
+           getInterationDefects(itId).then(function(data){
+             tickets = tickets.concat(data);
+
+             deferred.resolve(tickets);
+           });
+         });
+      });
+      return deferred.promise;
+
+      //return fetchCurrentIterationId(rallyProjectId).then(getInterationDefects);
     }
   };
 };

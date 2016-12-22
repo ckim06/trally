@@ -3,7 +3,7 @@
 
 #### Description
 
-Import Rally tickets into Trello. 
+Import Rally tickets into Trello.
 
 
 #### Prerequisites
@@ -19,9 +19,9 @@ Import Rally tickets into Trello.
 
 var trallyFactory = require('trally');
 var trally = trallyFactory({
-  rallyApiKey: 'rally-api-key',
-  trelloApiKey: 'trello-api-key',
-  trelloToken: 'trello-token'
+  rallyApiKey: '_hsEpPBu4QqKYz7qJQnaqgb8E2qTzZEiVqzbnV217UiE',
+  trelloApiKey: '41b00aa8e8fe2c1315d96e7384d60eb4',
+  trelloToken: '8ba2142d3b75052fc8b82c75b2ee24918e1d6003d20d2863f7cf59a23862201b'
 });
 
 var RallyState = trally.constants.RallyState;

@@ -54,7 +54,7 @@ module.exports = function(config) {
 
         function importCard(ticket) {
           var targetListId = resolveTargetListId(ticket);
-          return trelloAdapter.addCardToList(ticket.name, targetListId);
+          return trelloAdapter.addCardToList(ticket, targetListId);
         }
 
         function promises() {

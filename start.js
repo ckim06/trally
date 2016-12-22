@@ -8,7 +8,6 @@ var RallyState = trally.constants.RallyState;
 var importService = trally.services.importService;
 
 var importParams = {
-  //rallyProjectId: '25010545748',
   rallyProjectId: API_KEYS.rallyProjectId,
   trelloBoardName: 'Rally Integration',
   stateMappings: [

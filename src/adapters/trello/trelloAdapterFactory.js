@@ -52,31 +52,59 @@ module.exports = function(options) {
   var exports = {
 
     addCardToList: function(ticket, listId) {
-
       function url(listId) {
         return BASE_URL + 'lists/' + listId + '/cards';
       }
 
       var deferred = Q.defer();
 
+      var desc = '';
+
       var queryParams = {
         // em dash
-        name: ticket.id + ' — ' + ticket.name,
+        name: ticket.id + ' — ' + ticket.type + ' — ' + ticket.name,
         key: authParams.key,
         token: authParams.token
       };
 
-      function handleResponse(err, res, body) {
+      function handleResponse(err, res, card) {
 
         if (err) {
           deferred.reject(err);
 
         } else {
-          deferred.resolve(undefined);
+          if(!ticket.tasks) deferred.resolve();
+          var checkListParams = {
+            name: 'Tasks',
+            idCard:card.id,
+            key: authParams.key,
+            token: authParams.token
+          };
+
+          request({ url: BASE_URL + 'checklists', qs: checkListParams, method: 'POST', json: true}, function(err, res, checklist){
+            var taskPromises = [];
+            var taskPromise = Q.defer();
+            _.each(ticket.tasks, function(task){
+              var checkitemParams = {
+                name: task.ObjectID + ' — ' + task.Name,
+                key: authParams.key,
+                token: authParams.token
+              };
+              request({url: BASE_URL + 'cards/' + card.id + '/checklist/' + checklist.id + '/checkItem', qs: checkitemParams, method: 'POST', json:true}, function(err, res){
+                taskPromise.resolve();
+              });
+              taskPromises.push(taskPromise);
+            });
+            Q.all(taskPromises).then(function() {
+              deferred.resolve();
+            });
+          });
+
+
         }
       }
 
-      request({ url: url(listId), qs: queryParams, method: 'POST' }, handleResponse);
+      request({ url: url(listId), qs: queryParams, method: 'POST', json: true }, handleResponse);
 
       return deferred.promise;
     },

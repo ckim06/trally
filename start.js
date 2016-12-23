@@ -1,7 +1,6 @@
 var trallyFactory = require('./index.js');
 var API_KEYS = require('./api-keys.js')
 
-console.log(API_KEYS);
 var trally = trallyFactory(API_KEYS.API_KEYS);
 
 var RallyState = trally.constants.RallyState;
@@ -18,7 +17,6 @@ var importParams = {
     [RallyState.ACCEPTED, 'Done']
   ]
 };
-
 
 importService.importCurrentRallySprintIntoTrello(importParams).then(function() {
   console.log('Tickets imported');

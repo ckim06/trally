@@ -1,4 +1,5 @@
 var rally = require('rally');
+var request = require('request');
 var queryUtils = rally.util.query;
 var Q = require('q');
 var _ = require('lodash');
@@ -18,9 +19,11 @@ function currentDateInIsoFormat() {
 }
 
 
-module.exports = function(options) {
+module.exports = function (options) {
 
-  var settings = apiSettings({ apiKey: options.apiKey });
+  var settings = apiSettings({
+    apiKey: options.apiKey
+  });
   var restApi = rally(settings);
 
   function fetchCurrentIterationId(rallyProjectId) {
@@ -40,9 +43,7 @@ module.exports = function(options) {
         .and('EndDate', '>', currentDateInIso)
     };
 
-    var handleResponse = function(err, res) {
-      console.log('res', res);
-
+    var handleResponse = function (err, res) {
       if (err) {
         deferred.reject(new Error(err));
 
@@ -53,7 +54,7 @@ module.exports = function(options) {
         var iterationId = _(res.Results).first().ObjectID;
         deferred.resolve(iterationId);
       }
-    //  deferred.resolve(60727996718);
+      //  deferred.resolve(60727996718);
 
     };
 
@@ -61,20 +62,22 @@ module.exports = function(options) {
 
     return deferred.promise;
   }
+
   function getInterationDefects(iterationId) {
     var deferred = Q.defer();
 
     var query = {
-      type:'defect',
-      fetch: ['FormattedID','ObjectID', 'Name', 'Iteration', 'Owner', 'ScheduleState', 'Description'],
+      type: 'defect',
+      fetch: ['FormattedID', 'ObjectID', 'Name', 'Iteration', 'Owner', 'ScheduleState', 'Description'],
       query: queryUtils.where('Iteration.ObjectId', '=', iterationId),
       start: 1,
       limit: TICKETS_LIMIT
     };
 
-    var handleResponse = function(err, res) {
+    var handleResponse = function (err, res) {
       function tickets() {
-        return _(res.Results).map(ticketMapper.map).value();
+        var t = _(res.Results).map(ticketMapper.map).value();
+        return t;
       }
 
       if (err) {
@@ -95,25 +98,40 @@ module.exports = function(options) {
     var deferred = Q.defer();
 
     var query = {
-      type:'[hierarchicalrequirement]',
-      fetch: ['FormattedID','ObjectID', 'Name', 'Iteration', 'Owner', 'ScheduleState', 'Description'],
+      type: '[hierarchicalrequirement]',
+      fetch: ['FormattedID', 'ObjectID', 'Name', 'Iteration', 'Owner', 'ScheduleState', 'Description', '_type', 'Tasks'],
       query: queryUtils.where('Iteration.ObjectId', '=', iterationId),
       start: 1,
       limit: TICKETS_LIMIT
     };
 
-    var handleResponse = function(err, res) {
-      console.log(res);
-
+    var handleResponse = function (err, res) {
       function tickets() {
-        return _(res.Results).map(ticketMapper.map).value();
+        var taskPromises = [];
+        var results = _(res.Results).map(function (result) {
+          var taskDeferred = Q.defer();
+          taskPromises.push(restApi.get({
+            ref: result.Tasks._ref,
+            fetch: ['Name', 'ObjectID'],
+          }).then(addTasks));
+
+          function addTasks(res) {
+            result.Tasks = res.Object.Results;
+            taskDeferred.resolve(result);
+
+          }
+          return result;
+        }).value();
+
+        Q.all(taskPromises).then(function () {
+          deferred.resolve(_(results).map(ticketMapper.map).value());
+        });
       }
 
       if (err) {
         deferred.reject(new Error(err));
-
       } else {
-        deferred.resolve(tickets());
+        tickets();
       }
     };
 
@@ -122,21 +140,22 @@ module.exports = function(options) {
     return deferred.promise;
   }
 
+
   return {
-    fetchCurrentSprintTickets: function(rallyProjectId) {
+    fetchCurrentSprintTickets: function (rallyProjectId) {
       var deferred = Q.defer();
       var itId;
-     fetchCurrentIterationId(rallyProjectId).then(function(interationId) {
-       itId = interationId;
-       getIterationTickets(interationId).then(function(data) {
-           tickets = data;
+      fetchCurrentIterationId(rallyProjectId).then(function (interationId) {
+        itId = interationId;
+        getIterationTickets(interationId).then(function (data) {
+          tickets = data;
 
-           getInterationDefects(itId).then(function(data){
-             tickets = tickets.concat(data);
+          getInterationDefects(itId).then(function (data) {
+            tickets = tickets.concat(data);
 
-             deferred.resolve(tickets);
-           });
-         });
+            deferred.resolve(tickets);
+          });
+        });
       });
       return deferred.promise;
 

@@ -62,7 +62,7 @@ module.exports = function(options) {
 
       var queryParams = {
         // em dash
-        name: ticket.id + ' — ' + ticket.type + ' — ' + ticket.name,
+        name: ticket.id + ' — ' + ticket.name,
         key: authParams.key,
         token: authParams.token
       };

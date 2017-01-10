@@ -110,12 +110,14 @@ module.exports = function (options) {
         var taskPromises = [];
         var results = _(res.Results).map(function (result) {
           var taskDeferred = Q.defer();
+        
           taskPromises.push(restApi.get({
             ref: result.Tasks._ref,
             fetch: ['Name', 'ObjectID'],
           }).then(addTasks));
 
           function addTasks(res) {
+
             result.Tasks = res.Object.Results;
             taskDeferred.resolve(result);
 
@@ -149,6 +151,7 @@ module.exports = function (options) {
         itId = interationId;
         getIterationTickets(interationId).then(function (data) {
           tickets = data;
+
 
           getInterationDefects(itId).then(function (data) {
             tickets = tickets.concat(data);

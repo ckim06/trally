@@ -7,7 +7,7 @@ var BASE_URL = 'https://api.trello.com/1/';
 var BOARDS_URL = BASE_URL + 'members/my/boards';
 
 
-module.exports = function(options) {
+module.exports = function (options) {
 
   var authParams = {
     key: options.apiKey,
@@ -23,10 +23,10 @@ module.exports = function(options) {
       token: authParams.token
     };
 
-    var handleResponse = function(err, res, boards) {
+    var handleResponse = function (err, res, boards) {
 
       function findBoard() {
-        return _(boards).find(function(board) {
+        return _(boards).find(function (board) {
           return board.name === boardName;
         });
       }
@@ -38,20 +38,23 @@ module.exports = function(options) {
 
         var board = findBoard();
 
-        (board !== undefined)
-            ? deferred.resolve(board.id)
-            : deferred.reject(new Error('Could not find the board with name ' + boardName));
+        (board !== undefined) ?
+        deferred.resolve(board.id): deferred.reject(new Error('Could not find the board with name ' + boardName));
       }
     };
 
-    request({ url: BOARDS_URL, qs: queryParams, json: true }, handleResponse);
+    request({
+      url: BOARDS_URL,
+      qs: queryParams,
+      json: true
+    }, handleResponse);
 
     return deferred.promise;
   }
 
   var exports = {
 
-    addCardToList: function(ticket, listId) {
+    addCardToList: function (ticket, listId) {
       function url(listId) {
         return BASE_URL + 'lists/' + listId + '/cards';
       }
@@ -73,43 +76,21 @@ module.exports = function(options) {
           deferred.reject(err);
 
         } else {
-          if(!ticket.tasks) deferred.resolve();
-          var checkListParams = {
-            name: 'Tasks',
-            idCard:card.id,
-            key: authParams.key,
-            token: authParams.token
-          };
-
-          request({ url: BASE_URL + 'checklists', qs: checkListParams, method: 'POST', json: true}, function(err, res, checklist){
-            var taskPromises = [];
-            var taskPromise = Q.defer();
-            _.each(ticket.tasks, function(task){
-              var checkitemParams = {
-                name: task.ObjectID + ' — ' + task.Name,
-                key: authParams.key,
-                token: authParams.token
-              };
-              request({url: BASE_URL + 'cards/' + card.id + '/checklist/' + checklist.id + '/checkItem', qs: checkitemParams, method: 'POST', json:true}, function(err, res){
-                taskPromise.resolve();
-              });
-              taskPromises.push(taskPromise);
-            });
-            Q.all(taskPromises).then(function() {
-              deferred.resolve();
-            });
-          });
-
-
+          deferred.resolve();
         }
       }
 
-      request({ url: url(listId), qs: queryParams, method: 'POST', json: true }, handleResponse);
+      request({
+        url: url(listId),
+        qs: queryParams,
+        method: 'POST',
+        json: true
+      }, handleResponse);
 
       return deferred.promise;
     },
 
-    getListsByBoardId: function(boardId) {
+    getListsByBoardId: function (boardId) {
 
       function url(boardId) {
         return BASE_URL + 'boards/' + boardId + '/lists';
@@ -135,12 +116,16 @@ module.exports = function(options) {
         }
       }
 
-      request({ url: url(boardId), qs: queryParams, json: true }, handleResponse);
+      request({
+        url: url(boardId),
+        qs: queryParams,
+        json: true
+      }, handleResponse);
 
       return deferred.promise;
     },
 
-    archiveAllListCards: function(listIds) {
+    archiveAllListCards: function (listIds) {
 
       function archiveCards(listId) {
         return exports.archiveListCards(listId);
@@ -153,7 +138,7 @@ module.exports = function(options) {
       return Q.all(promises());
     },
 
-    getListsByBoardName: function(boardName) {
+    getListsByBoardName: function (boardName) {
 
       function getLists(boardId) {
         return exports.getListsByBoardId(boardId);
@@ -162,7 +147,7 @@ module.exports = function(options) {
       return resolveBoardId(boardName).then(getLists);
     },
 
-    archiveListCards: function(listId) {
+    archiveListCards: function (listId) {
 
       function url(listId) {
         return BASE_URL + 'lists/' + listId + '/archiveAllCards';
@@ -180,7 +165,11 @@ module.exports = function(options) {
         }
       }
 
-      request({ url: url(listId), qs: authParams, method: 'POST' }, handleResponse);
+      request({
+        url: url(listId),
+        qs: authParams,
+        method: 'POST'
+      }, handleResponse);
 
       return deferred.promise;
     }

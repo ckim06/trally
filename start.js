@@ -13,8 +13,8 @@ var importParams = {
     [RallyState.BACKLOG, 'ToDo'],
     [RallyState.DEFINED, 'ToDo'],
     [RallyState.IN_PROGRESS, 'Active'],
-    [RallyState.COMPLETED, 'Testing'],
-    [RallyState.ACCEPTED, 'Done']
+    [RallyState.COMPLETED, 'Done'],
+    //[RallyState.ACCEPTED, 'Done']
   ]
 };
 

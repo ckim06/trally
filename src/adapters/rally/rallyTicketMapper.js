@@ -14,7 +14,7 @@ module.exports = {
       stateName: options.ScheduleState,
       type: options._type,
       tasks: options.Tasks,
-      ownerId: options.Owner ? options.Owner.ObjectID : undefined
+      owner: options.Owner
     })
   }
 };

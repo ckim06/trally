@@ -14,7 +14,7 @@ module.exports = function(options) {
     name: options.name,
     description: options.description,
     stateName: options.stateName,
-    ownerId: options.ownerId,
+    owner: options.owner,
     tasks: options.tasks,
     type: options.type
   };

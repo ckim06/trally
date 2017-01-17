@@ -61,12 +61,13 @@ module.exports = function (options) {
 
       var deferred = Q.defer();
 
-      var desc = '';
+      var ticketString = JSON.stringify({'id': ticket.id});
 
       var queryParams = {
         // em dash
-        name: ticket.id + ' — ' + ticket.name,
+        name: ticket.friendlyId + ' — ' + ticket.owner._refObjectName + ' ' + ticket.name,
         key: authParams.key,
+        desc: ticketString,
         token: authParams.token
       };
 

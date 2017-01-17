@@ -8,7 +8,6 @@ var BOARDS_URL = BASE_URL + 'members/my/boards';
 
 
 module.exports = function (options) {
-
   var authParams = {
     key: options.apiKey,
     token: options.token
@@ -60,12 +59,13 @@ module.exports = function (options) {
       }
 
       var deferred = Q.defer();
+      var link = 'https://rally1.rallydev.com/#/search?keywords=' + ticket.friendlyId;
 
-      var ticketString = JSON.stringify({'id': ticket.id});
+      var ticketString = JSON.stringify({'id': ticket.id}) + '\n\n\n' + link;
+      //var ticketString = JSON.stringify(ticket);
 
       var queryParams = {
-        // em dash
-        name: ticket.friendlyId + ' — ' + ticket.owner._refObjectName + ' ' + ticket.name,
+        name: ticket.friendlyId + ' - ' + ticket.owner._refObjectName + ' - ' + ticket.name,
         key: authParams.key,
         desc: ticketString,
         token: authParams.token

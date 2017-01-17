@@ -10,7 +10,7 @@ var importParams = {
   rallyProjectId: API_KEYS.rallyProjectId,
   trelloBoardName: 'Rally Integration',
   stateMappings: [
-    [RallyState.BACKLOG, 'ToDo'],
+    [RallyState.BACKLOG, 'Backlog'],
     [RallyState.DEFINED, 'ToDo'],
     [RallyState.IN_PROGRESS, 'Active'],
     [RallyState.COMPLETED, 'Done'],

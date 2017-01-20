@@ -1,14 +1,20 @@
 {
+  "engines": {
+    "node": "6.9.4"
+  },
   "name": "trally",
-  "version": "0.2.1",
+  "version": "1.0.0",
   "description": "Import Rally tickets into Trello",
-  "main": "index.js",
+  "main": "start.js",
   "author": "Stipe Ivan Latkovic <slatkovi@gmail.com>",
   "homepage": "https://github.com/slatkovic/trally",
   "bugs": "https://github.com/slatkovic/trally/issues",
   "repository": {
     "type": "git",
     "url": "git@github.com:slatkovic/trally.git"
+  },
+  "scripts":{
+    "start": "node start.js"
   },
   "dependencies": {
     "lodash": "^3.7.0",

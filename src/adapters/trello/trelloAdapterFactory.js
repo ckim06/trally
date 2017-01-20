@@ -2,6 +2,7 @@ var request = require('request');
 var _ = require('lodash');
 var Q = require('q');
 var listFactory = require('./trelloListFactory');
+var memberMap = require('./memberMap');
 
 var BASE_URL = 'https://api.trello.com/1/';
 var BOARDS_URL = BASE_URL + 'members/my/boards';
@@ -65,12 +66,19 @@ module.exports = function (options) {
       //var ticketString = JSON.stringify(ticket);
 
       var queryParams = {
-        name: ticket.friendlyId + ' - ' + ticket.owner._refObjectName + ' - ' + ticket.name,
         key: authParams.key,
         desc: ticketString,
         token: authParams.token
       };
 
+      if(memberMap[ticket.owner.ObjectID]){
+        queryParams.idMembers = memberMap[ticket.owner.ObjectID];
+        queryParams.name = ticket.friendlyId + ' - ' + ticket.name;
+      } else {
+        queryParams.name = ticket.friendlyId + ' - ' + ticket.owner._refObjectName + ' - ' + ticket.name;
+      }
+
+  
       function handleResponse(err, res, card) {
 
         if (err) {

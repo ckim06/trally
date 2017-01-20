@@ -14,7 +14,7 @@ var importParams = {
     [RallyState.DEFINED, 'ToDo'],
     [RallyState.IN_PROGRESS, 'Active'],
     [RallyState.COMPLETED, 'Done'],
-    //[RallyState.ACCEPTED, 'Done']
+    [RallyState.ACCEPTED, 'Accepted']
   ]
 };
 

@@ -39,14 +39,15 @@ module.exports = function (options) {
 
       query: queryUtils
         .where('Project.ObjectId', '=', rallyProjectId)
-        .and('StartDate', '<', currentDateInIso)
+        .and('StartDate', '<=', currentDateInIso)
         .and('EndDate', '>', currentDateInIso)
     };
 
     var handleResponse = function (err, res) {
       if (err) {
         deferred.reject(new Error(err));
-
+      } else if (res.Results.length === 0) {
+        deferred.reject(new Error('Current iteration not found.'));
       } else if (res.Results.length != 1) {
         deferred.reject(new Error('Found multiple iterations'));
 
@@ -110,7 +111,7 @@ module.exports = function (options) {
         var taskPromises = [];
         var results = _(res.Results).map(function (result) {
           var taskDeferred = Q.defer();
-        
+
           taskPromises.push(restApi.get({
             ref: result.Tasks._ref,
             fetch: ['Name', 'ObjectID'],
@@ -151,8 +152,6 @@ module.exports = function (options) {
         itId = interationId;
         getIterationTickets(interationId).then(function (data) {
           tickets = data;
-
-
           getInterationDefects(itId).then(function (data) {
             tickets = tickets.concat(data);
 
